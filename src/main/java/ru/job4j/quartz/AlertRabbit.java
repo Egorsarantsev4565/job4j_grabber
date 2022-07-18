@@ -45,7 +45,8 @@ public class AlertRabbit {
                 Thread.sleep(10000);
                 scheduler.shutdown();
             }
-        } catch (IOException | ClassNotFoundException | SQLException | SchedulerException | InterruptedException e) {
+        } catch (IOException | ClassNotFoundException
+                | SQLException | SchedulerException | InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -57,9 +58,12 @@ public class AlertRabbit {
 
         @Override
         public void execute(JobExecutionContext context) throws JobExecutionException {
-            System.out.println("Rabbit runs here ...");
-            Connection connection = (Connection)context.getJobDetail().getJobDataMap().get("store");
-            try(PreparedStatement ps = connection.
+            System.out.println("Rabbit runs here...");
+            Connection connection = (Connection) context
+                    .getJobDetail()
+                    .getJobDataMap()
+                    .get("store");
+            try (PreparedStatement ps = connection.
                     prepareStatement("insert into rabbit(created_date) values (?)")) {
                 ps.setLong(1, System.currentTimeMillis());
                 ps.execute();
