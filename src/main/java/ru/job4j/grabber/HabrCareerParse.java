@@ -1,10 +1,12 @@
 package ru.job4j.grabber;
 
+import jdk.swing.interop.SwingInterOpUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.job4j.grabber.utils.HabrCareerDateTimeParser;
 
 import java.io.IOException;
 
@@ -24,6 +26,7 @@ public class HabrCareerParse {
             Element linkElement = titleElement.child(0);
             Element timeElement = row.select(".vacancy-card__date").first();
             Element dateElement = timeElement.child(0);
+
             String vacancyName = titleElement.text();
             String vacancyDate = dateElement.attr("datetime");
             String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
