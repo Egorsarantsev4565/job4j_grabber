@@ -5,14 +5,25 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.job4j.grabber.utils.DateTimeParser;
+import ru.job4j.grabber.utils.HabrCareerDateTimeParser;
+
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HabrCareerParse {
-    public static final int LAST = 5;
-    private static final String SOURCE_LINK = "https://career.habr.com";
+    private static final int LAST = 5;
     private static int page;
+    private static final String SOURCE_LINK = "https://career.habr.com";
     private static final String PAGE_LINK = String
             .format("%s/vacancies/java_developer?page=%s", SOURCE_LINK, page);
+
+    private final DateTimeParser dateTimeParser;
+
+    public HabrCareerParse(DateTimeParser dateTimeParser) {
+        this.dateTimeParser = dateTimeParser;
+    }
 
     private static String retrieveDescription(String link) throws IOException {
         Connection connection = Jsoup.connect(link);
@@ -21,9 +32,10 @@ public class HabrCareerParse {
         return descElement.text();
     }
 
-    public static void main(String[] args) throws IOException {
-        for (int i = 1; page <= LAST; page++) {
-            Connection connection = Jsoup.connect(PAGE_LINK + i);
+    public List<Post> list(String addr) throws IOException {
+        List<Post> posts = new ArrayList<>();
+        for (int page = 1; page <= LAST; page++) {
+            Connection connection = Jsoup.connect(addr + page);
             Document document = connection.get();
             Elements rows = document.select(".vacancy-card__inner");
             rows.forEach(row -> {
@@ -47,5 +59,11 @@ public class HabrCareerParse {
                 System.out.println("< " + vacancyDesc + " >");
             });
         }
+        return posts;
     }
-}
+
+        public static void main(String[] args) throws IOException {
+            HabrCareerParse habrCareerParse = new HabrCareerParse(new HabrCareerDateTimeParser());
+            habrCareerParse.list(PAGE_LINK);
+        }
+    }
