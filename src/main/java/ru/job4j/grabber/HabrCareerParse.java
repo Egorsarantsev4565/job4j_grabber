@@ -1,13 +1,10 @@
 package ru.job4j.grabber;
 
-
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-
 import java.io.IOException;
 
 public class HabrCareerParse {
@@ -16,6 +13,13 @@ public class HabrCareerParse {
     private static int page;
     private static final String PAGE_LINK = String
             .format("%s/vacancies/java_developer?page=%s", SOURCE_LINK, page);
+
+    private static String retrieveDescription(String link) throws IOException {
+        Connection connection = Jsoup.connect(link);
+        Document document = connection.get();
+        Element descElement = document.selectFirst(".style-ugc");
+        return descElement.text();
+    }
 
     public static void main(String[] args) throws IOException {
         for (int i = 1; page <= LAST; page++) {
@@ -31,7 +35,16 @@ public class HabrCareerParse {
                 String vacancyName = titleElement.text();
                 String vacancyDate = dateElement.attr("datetime");
                 String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
+
                 System.out.printf("%s %s %s%n ", vacancyDate, vacancyName, link);
+
+                String vacancyDesc = null;
+                try {
+                    vacancyDesc = retrieveDescription(link);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("< " + vacancyDesc + " >");
             });
         }
     }
