@@ -48,24 +48,21 @@ public class HabrCareerParse {
         String vacancyDate = dateElement.attr("datetime");
         String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
         LocalDateTime dateTime = dateTimeParser.parse(vacancyDate);
-        System.out.printf("%s %s %s%n ", vacancyDate, vacancyName, link);
         String vacancyDesc = retrieveDescription(link);
 
-        System.out.println("< " + vacancyDesc + " >");
-        return new Post(titleElement.text(), link, vacancyDesc, dateTime);
+        return new Post(vacancyName, link, vacancyDesc, dateTime);
     }
 
     public List<Post> list(String addr) {
         List<Post> posts = new ArrayList<>();
         for (int i = 1; i <= LAST; i++) {
-            String pageLink = String.format("%s", addr);
-            Connection connection = Jsoup.connect(pageLink + i);
+            Connection connection = Jsoup.connect(String.format("%s%s", addr, i));
             try {
                 Document document = connection.get();
                 Elements rows = document.select(".vacancy-card__inner");
                 rows.forEach(row -> posts.add(parsing(row)));
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new IllegalArgumentException();
             }
         }
         return posts;
