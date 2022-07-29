@@ -25,14 +25,20 @@ public class HabrCareerParse {
         this.dateTimeParser = dateTimeParser;
     }
 
-    private static String retrieveDescription(String link) throws IOException {
-        Connection connection = Jsoup.connect(link);
-        Document document = connection.get();
-        Element descElement = document.selectFirst(".style-ugc");
-        return descElement.text();
+    private static String retrieveDescription(String link) throws IllegalArgumentException {
+        String vacancyDesc = null;
+        try {
+            Connection connection = Jsoup.connect(link);
+            Document document = connection.get();
+            Element descElement = document.selectFirst(".style-ugc");
+            vacancyDesc = descElement.text();
+        } catch (IOException e) {
+            throw new IllegalArgumentException();
+        }
+        return vacancyDesc;
     }
 
-    private Post parsing(Element row) throws IllegalArgumentException {
+    private Post parsing(Element row) {
         Element titleElement = row.select(".vacancy-card__title").first();
         Element linkElement = titleElement.child(0);
         Element timeElement = row.select(".vacancy-card__date").first();
@@ -43,13 +49,8 @@ public class HabrCareerParse {
         String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
         LocalDateTime dateTime = dateTimeParser.parse(vacancyDate);
         System.out.printf("%s %s %s%n ", vacancyDate, vacancyName, link);
+        String vacancyDesc = retrieveDescription(link);
 
-        String vacancyDesc = null;
-        try {
-            vacancyDesc = retrieveDescription(link);
-        } catch (IOException e) {
-            throw new IllegalArgumentException();
-        }
         System.out.println("< " + vacancyDesc + " >");
         return new Post(titleElement.text(), link, vacancyDesc, dateTime);
     }
@@ -57,7 +58,7 @@ public class HabrCareerParse {
     public List<Post> list(String addr) {
         List<Post> posts = new ArrayList<>();
         for (int i = 1; i <= LAST; i++) {
-            String pageLink = String.format("%s%s", SOURCE_LINK, addr);
+            String pageLink = String.format("%s", addr);
             Connection connection = Jsoup.connect(pageLink + i);
             try {
                 Document document = connection.get();
