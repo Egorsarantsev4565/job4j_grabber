@@ -56,22 +56,23 @@ public class PsqlStore implements Store, AutoCloseable {
     }
 
     @Override
-    public List<Post> getAll() throws SQLException {
+    public List<Post> getAll() {
         List<Post> posts = new ArrayList<>();
         try (PreparedStatement statement = cnn.prepareStatement("SELECT * FROM post")) {
             try (ResultSet resultSet = statement.executeQuery()) {
-            while (resultSet.next()) {
-                posts.add(getPost(resultSet));
-            }
-            } catch (SQLException e) {
-                e.printStackTrace();
+                while (resultSet.next()) {
+                    posts.add(getPost(resultSet));
+                }
             }
             return posts;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
+        return posts;
     }
 
     @Override
-    public Post findById(int id) throws SQLException {
+    public Post findById(int id) {
         Post post = null;
         try (PreparedStatement ps = cnn.
                 prepareStatement("SELECT * FROM post WHERE id = ?")) {
@@ -80,11 +81,11 @@ public class PsqlStore implements Store, AutoCloseable {
                 if (resultSet.next()) {
                     post = getPost(resultSet);
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
-            return post;
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return post;
     }
 
     @Override
