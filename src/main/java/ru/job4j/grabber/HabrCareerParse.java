@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HabrCareerParse {
+public class HabrCareerParse implements Parse {
     private static final int LAST = 5;
     private static final String SOURCE_LINK = "https://career.habr.com";
     private static final String PAGE_LINK = String
